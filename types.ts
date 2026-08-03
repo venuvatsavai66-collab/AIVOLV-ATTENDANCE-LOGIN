@@ -1,61 +1,114 @@
-// import type { GeneratedRange, OriginalScope } from '@jridgewell/sourcemap-codec';
 import type { SourceMapSegment } from './sourcemap-segment';
+import type { GREATEST_LOWER_BOUND, LEAST_UPPER_BOUND, TraceMap } from './trace-mapping';
 
 export interface SourceMapV3 {
   file?: string | null;
-  names: readonly string[];
+  names: string[];
   sourceRoot?: string;
-  sources: readonly (string | null)[];
-  sourcesContent?: readonly (string | null)[];
+  sources: (string | null)[];
+  sourcesContent?: (string | null)[];
   version: 3;
-  ignoreList?: readonly number[];
+  ignoreList?: number[];
 }
 
 export interface EncodedSourceMap extends SourceMapV3 {
   mappings: string;
-  // originalScopes: string[];
-  // generatedRanges: string;
 }
 
 export interface DecodedSourceMap extends SourceMapV3 {
-  mappings: readonly SourceMapSegment[][];
-  // originalScopes: readonly OriginalScope[][];
-  // generatedRanges: readonly GeneratedRange[];
+  mappings: SourceMapSegment[][];
 }
 
-export interface Pos {
-  line: number; // 1-based
-  column: number; // 0-based
+export interface Section {
+  offset: { line: number; column: number };
+  map: EncodedSourceMap | DecodedSourceMap | SectionedSourceMap;
 }
 
-export interface OriginalPos extends Pos {
-  source: string;
+export interface SectionedSourceMap {
+  file?: string | null;
+  sections: Section[];
+  version: 3;
 }
 
-export interface BindingExpressionRange {
-  start: Pos;
-  expression: string;
-}
+export type OriginalMapping = {
+  source: string | null;
+  line: number;
+  column: number;
+  name: string | null;
+};
 
-// export type OriginalScopeInfo = [number, number, string[] | undefined];
-// export type GeneratedRangeInfo = [GeneratedRange, string[] | undefined];
+export type InvalidOriginalMapping = {
+  source: null;
+  line: null;
+  column: null;
+  name: null;
+};
 
-export type Mapping =
+export type GeneratedMapping = {
+  line: number;
+  column: number;
+};
+export type InvalidGeneratedMapping = {
+  line: null;
+  column: null;
+};
+
+export type Bias = typeof GREATEST_LOWER_BOUND | typeof LEAST_UPPER_BOUND;
+
+export type XInput = { x_google_ignoreList?: SourceMapV3['ignoreList'] };
+export type EncodedSourceMapXInput = EncodedSourceMap & XInput;
+export type DecodedSourceMapXInput = DecodedSourceMap & XInput;
+export type SectionedSourceMapXInput = Omit<SectionedSourceMap, 'sections'> & {
+  sections: SectionXInput[];
+};
+export type SectionXInput = Omit<Section, 'map'> & {
+  map: SectionedSourceMapInput;
+};
+
+export type SourceMapInput = string | EncodedSourceMapXInput | DecodedSourceMapXInput | TraceMap;
+export type SectionedSourceMapInput = SourceMapInput | SectionedSourceMapXInput;
+
+export type Needle = { line: number; column: number; bias?: Bias };
+export type SourceNeedle = { source: string; line: number; column: number; bias?: Bias };
+
+export type EachMapping =
   | {
-      generated: Pos;
-      source: undefined;
-      original: undefined;
-      name: undefined;
+      generatedLine: number;
+      generatedColumn: number;
+      source: null;
+      originalLine: null;
+      originalColumn: null;
+      name: null;
     }
   | {
-      generated: Pos;
-      source: string;
-      original: Pos;
-      name: string;
-    }
-  | {
-      generated: Pos;
-      source: string;
-      original: Pos;
-      name: undefined;
+      generatedLine: number;
+      generatedColumn: number;
+      source: string | null;
+      originalLine: number;
+      originalColumn: number;
+      name: string | null;
     };
+
+export abstract class SourceMap {
+  declare version: SourceMapV3['version'];
+  declare file: SourceMapV3['file'];
+  declare names: SourceMapV3['names'];
+  declare sourceRoot: SourceMapV3['sourceRoot'];
+  declare sources: SourceMapV3['sources'];
+  declare sourcesContent: SourceMapV3['sourcesContent'];
+  declare resolvedSources: SourceMapV3['sources'];
+  declare ignoreList: SourceMapV3['ignoreList'];
+}
+
+export type Ro<T> =
+  T extends Array<infer V>
+    ? V[] | Readonly<V[]> | RoArray<V> | Readonly<RoArray<V>>
+    : T extends object
+      ? T | Readonly<T> | RoObject<T> | Readonly<RoObject<T>>
+      : T;
+type RoArray<T> = Ro<T>[];
+type RoObject<T> = { [K in keyof T]: T[K] | Ro<T[K]> };
+
+export function parse<T>(map: T): Exclude<T, string> {
+  return typeof map === 'string' ? JSON.parse(map) : (map as Exclude<T, string>);
+}
