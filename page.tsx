@@ -1,88 +1,105 @@
+import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { formatDateTime } from "@/lib/utils";
-import { History, ShieldAlert } from "lucide-react";
+import AdminDashboardView from "@/components/dashboards/admin-dashboard";
+import EmployeeDashboardView from "@/components/dashboards/employee-dashboard";
 
 export const revalidate = 0;
 
-async function getAuditLogs() {
-  try {
-    const logs = await prisma.auditLog.findMany({
-      take: 50,
-      orderBy: { createdAt: "desc" },
-      include: {
-        user: true,
-      },
-    });
-    return logs;
-  } catch (error) {
-    console.error("Failed to fetch audit logs:", error);
-    return [];
-  }
-}
+export default async function DashboardPage() {
+  const currentUser = await getCurrentUser();
+  const roleCode = currentUser?.role?.code || "EMPLOYEE";
+  const employee = currentUser?.employee;
 
-export default async function AuditLogsPage() {
-  const logs = await getAuditLogs();
+  const now = new Date();
+  const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
+
+  // Common Queries
+  const [
+    userCount,
+    employeeCount,
+    departmentCount,
+    presentCount,
+    lateCount,
+    pendingLeaves,
+    activeTasksCount,
+    overdueTasksCount,
+    recentAuditLogs,
+    upcomingHolidays,
+  ] = await Promise.all([
+    prisma.user.count({ where: { deletedAt: null } }),
+    prisma.employee.count({ where: { deletedAt: null } }),
+    prisma.department.count({ where: { deletedAt: null, isActive: true } }),
+    prisma.attendance.count({ where: { date: { gte: startOfDay }, status: "PRESENT" } }),
+    prisma.attendance.count({ where: { date: { gte: startOfDay }, status: "LATE" } }),
+    prisma.leaveRequest.findMany({
+      where: { status: "PENDING" },
+      include: { employee: true, leaveType: true },
+      orderBy: { createdAt: "desc" },
+    }),
+    prisma.task.count({ where: { deletedAt: null, status: { not: "COMPLETED" } } }),
+    prisma.task.count({
+      where: {
+        deletedAt: null,
+        status: { not: "COMPLETED" },
+        dueDate: { lt: now },
+      },
+    }),
+    prisma.auditLog.findMany({
+      take: 5,
+      orderBy: { createdAt: "desc" },
+    }),
+    prisma.holiday.findMany({
+      where: { isActive: true, date: { gte: now } },
+      take: 4,
+      orderBy: { date: "asc" },
+    }),
+  ]);
+
+  if (roleCode === "SUPER_ADMIN" || roleCode === "HR_ADMIN" || roleCode === "MANAGER") {
+    return (
+      <AdminDashboardView
+        employeeCount={employeeCount}
+        userCount={userCount}
+        departmentCount={departmentCount}
+        presentCount={presentCount}
+        lateCount={lateCount}
+        pendingLeaves={pendingLeaves}
+        activeTasksCount={activeTasksCount}
+        overdueTasksCount={overdueTasksCount}
+        recentAuditLogs={recentAuditLogs}
+        upcomingHolidays={upcomingHolidays}
+      />
+    );
+  }
+
+  // Employee Dashboard Data
+  let todayAttendance = null;
+  let userBalances: any[] = [];
+  let myTasks: any[] = [];
+
+  if (employee) {
+    [todayAttendance, userBalances, myTasks] = await Promise.all([
+      prisma.attendance.findFirst({
+        where: { employeeId: employee.id, date: { gte: startOfDay } },
+      }),
+      prisma.leaveBalance.findMany({
+        where: { employeeId: employee.id, year: 2026 },
+        include: { leaveType: true },
+      }),
+      prisma.task.findMany({
+        where: { assigneeId: employee.id, status: { not: "COMPLETED" } },
+        orderBy: { createdAt: "desc" },
+      }),
+    ]);
+  }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold text-slate-100 flex items-center gap-2">
-          <History className="h-6 w-6 text-amber-400" />
-          Security Audit Logs
-        </h2>
-        <p className="text-sm text-slate-400 mt-1">
-          Historical trail of user actions, login events, and configuration updates (`audit_logs`).
-        </p>
-      </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base flex items-center justify-between">
-            <span>Audit Events Log ({logs.length})</span>
-            <Badge variant="outline">Air-gapped Compliance Log</Badge>
-          </CardTitle>
-          <CardDescription>Records IP address, action module, and user metadata for auditing.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Timestamp</TableHead>
-                <TableHead>Action</TableHead>
-                <TableHead>Module</TableHead>
-                <TableHead>User</TableHead>
-                <TableHead>IP Address</TableHead>
-                <TableHead>Details</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {logs.length > 0 ? (
-                logs.map((log) => (
-                  <TableRow key={log.id}>
-                    <TableCell className="text-xs text-slate-400 whitespace-nowrap">{formatDateTime(log.createdAt)}</TableCell>
-                    <TableCell>
-                      <Badge variant="secondary" className="font-mono text-xs">{log.action}</Badge>
-                    </TableCell>
-                    <TableCell className="text-xs font-semibold text-slate-300">{log.module}</TableCell>
-                    <TableCell className="text-xs font-mono text-indigo-400">{log.user?.email || "System/Guest"}</TableCell>
-                    <TableCell className="text-xs font-mono text-slate-400">{log.ipAddress || "127.0.0.1"}</TableCell>
-                    <TableCell className="text-xs text-slate-400 max-w-xs truncate">{log.details || "-"}</TableCell>
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={6} className="text-center py-8 text-slate-500 text-sm">
-                    No audit logs available. Run seed command (`npm run db:seed`) to create initial entries.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-    </div>
+    <EmployeeDashboardView
+      employee={employee || { firstName: currentUser?.email || "User", lastName: "", employeeCode: "LAN-USR" }}
+      todayAttendance={todayAttendance}
+      userBalances={userBalances}
+      myTasks={myTasks}
+      upcomingHolidays={upcomingHolidays}
+    />
   );
 }
