@@ -1,20 +1,12 @@
-export type Env = {
-    [key: string]: string | undefined;
-};
-export type LoadedEnvFiles = Array<{
-    path: string;
-    contents: string;
-}>;
-export declare let initialEnv: Env | undefined;
-export declare function updateInitialEnv(newEnv: Env): void;
-type Log = {
-    info: (...args: any[]) => void;
-    error: (...args: any[]) => void;
-};
-export declare function processEnv(loadedEnvFiles: LoadedEnvFiles, dir?: string, log?: Log, forceReload?: boolean, onReload?: (envFilePath: string) => void): Env;
-export declare function resetEnv(): void;
-export declare function loadEnvConfig(dir: string, dev?: boolean, log?: Log, forceReload?: boolean, onReload?: (envFilePath: string) => void): {
-    combinedEnv: Env;
-    loadedEnvFiles: LoadedEnvFiles;
-};
-export {};
+import type { FileSystemAdapter, StatAsynchronousMethod, StatSynchronousMethod } from './adapters/fs';
+import * as async from './providers/async';
+import Settings, { Options } from './settings';
+import type { Stats } from './types';
+declare type AsyncCallback = async.AsyncCallback;
+declare function stat(path: string, callback: AsyncCallback): void;
+declare function stat(path: string, optionsOrSettings: Options | Settings, callback: AsyncCallback): void;
+declare namespace stat {
+    function __promisify__(path: string, optionsOrSettings?: Options | Settings): Promise<Stats>;
+}
+declare function statSync(path: string, optionsOrSettings?: Options | Settings): Stats;
+export { Settings, stat, statSync, AsyncCallback, FileSystemAdapter, StatAsynchronousMethod, StatSynchronousMethod, Options, Stats };
