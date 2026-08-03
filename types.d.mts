@@ -1,4 +1,4 @@
-import type { SourceMapSegment } from './sourcemap-segment';
+import type { SourceMapSegment } from './sourcemap-segment.mts';
 export interface SourceMapV3 {
     file?: string | null;
     names: readonly string[];
@@ -41,3 +41,4 @@ export type Mapping = {
     original: Pos;
     name: undefined;
 };
+//# sourceMappingURL=types.d.ts.map
