@@ -1,48 +1,47 @@
 {
-  "name": "autoprefixer",
-  "version": "10.5.4",
-  "description": "Parse CSS and add vendor prefixes to CSS rules using values from the Can I Use website",
-  "keywords": [
-    "autoprefixer",
-    "css",
-    "postcss",
-    "postcss-plugin",
-    "prefix"
+  "name": "bcryptjs",
+  "description": "Optimized bcrypt in plain JavaScript with zero dependencies. Compatible to 'bcrypt'.",
+  "version": "2.4.3",
+  "author": "Daniel Wirtz <dcode@dcode.io>",
+  "contributors": [
+    "Shane Girish <shaneGirish@gmail.com> (https://github.com/shaneGirish)",
+    "Alex Murray <> (https://github.com/alexmurray)",
+    "Nicolas Pelletier <> (https://github.com/NicolasPelletier)",
+    "Josh Rogers <> (https://github.com/geekymole)",
+    "Noah Isaacson <noah@nisaacson.com> (https://github.com/nisaacson)"
   ],
+  "repository": {
+    "type": "url",
+    "url": "https://github.com/dcodeIO/bcrypt.js.git"
+  },
   "bugs": {
-    "url": "https://github.com/postcss/autoprefixer/issues"
+    "url": "https://github.com/dcodeIO/bcrypt.js/issues"
+  },
+  "keywords": [
+    "bcrypt",
+    "password",
+    "auth",
+    "authentication",
+    "encryption",
+    "crypt",
+    "crypto"
+  ],
+  "main": "index.js",
+  "browser": "dist/bcrypt.js",
+  "dependencies": {},
+  "devDependencies": {
+    "testjs": "~1",
+    "closurecompiler": "~1",
+    "metascript": "~0.18",
+    "bcrypt": "latest",
+    "utfx": "~1"
   },
   "license": "MIT",
-  "author": "Andrey Sitnik <andrey@sitnik.es>",
-  "repository": "postcss/autoprefixer",
-  "funding": [
-    {
-      "type": "opencollective",
-      "url": "https://opencollective.com/postcss/"
-    },
-    {
-      "type": "tidelift",
-      "url": "https://tidelift.com/funding/github/npm/autoprefixer"
-    },
-    {
-      "type": "github",
-      "url": "https://github.com/sponsors/ai"
-    }
-  ],
-  "bin": "bin/autoprefixer",
-  "main": "lib/autoprefixer.js",
-  "types": "lib/autoprefixer.d.ts",
-  "dependencies": {
-    "browserslist": "^4.28.6",
-    "caniuse-lite": "^1.0.30001806",
-    "fraction.js": "^5.3.4",
-    "picocolors": "^1.1.1",
-    "postcss-value-parser": "^4.2.0"
-  },
-  "peerDependencies": {
-    "postcss": "^8.1.0"
-  },
-  "engines": {
-    "node": "^10 || ^12 || >=14"
+  "scripts": {
+    "test": "node node_modules/testjs/bin/testjs",
+    "build": "node scripts/build.js",
+    "compile": "node node_modules/closurecompiler/bin/ccjs dist/bcrypt.js --compilation_level=SIMPLE_OPTIMIZATIONS --create_source_map=dist/bcrypt.min.map > dist/bcrypt.min.js",
+    "compress": "gzip -c -9 dist/bcrypt.min.js > dist/bcrypt.min.js.gz",
+    "make": "npm run build && npm run compile && npm run compress && npm test"
   }
 }
