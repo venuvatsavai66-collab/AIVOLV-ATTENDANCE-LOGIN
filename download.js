@@ -16,24 +16,16 @@ var __copyProps = (to, from, except, desc) => {
   return to;
 };
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
-var dist_exports = {};
-__export(dist_exports, {
-  BinaryType: () => import_chunk_X37PZICB.BinaryType,
-  allEngineEnvVarsSet: () => import_chunk_PXQVM7NP.allEngineEnvVarsSet,
-  deprecatedEnvVarMap: () => import_chunk_PXQVM7NP.deprecatedEnvVarMap,
+var download_exports = {};
+__export(download_exports, {
   download: () => import_chunk_2BCLJS3M.download,
-  engineEnvVarMap: () => import_chunk_PXQVM7NP.engineEnvVarMap,
-  getBinaryEnvVarPath: () => import_chunk_PXQVM7NP.getBinaryEnvVarPath,
   getBinaryName: () => import_chunk_2BCLJS3M.getBinaryName,
-  getCacheDir: () => import_chunk_FQ2BOR66.getCacheDir,
-  getProxyAgent: () => import_chunk_KDPLGCY6.getProxyAgent,
   getVersion: () => import_chunk_2BCLJS3M.getVersion,
   maybeCopyToTmp: () => import_chunk_2BCLJS3M.maybeCopyToTmp,
-  overwriteFile: () => import_chunk_FQ2BOR66.overwriteFile,
   plusX: () => import_chunk_2BCLJS3M.plusX,
   vercelPkgPathRegex: () => import_chunk_2BCLJS3M.vercelPkgPathRegex
 });
-module.exports = __toCommonJS(dist_exports);
+module.exports = __toCommonJS(download_exports);
 var import_chunk_2BCLJS3M = require("./chunk-2BCLJS3M.js");
 var import_chunk_4LX3XBNY = require("./chunk-4LX3XBNY.js");
 var import_chunk_MX3HXAU2 = require("./chunk-MX3HXAU2.js");
