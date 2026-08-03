@@ -1,97 +1,50 @@
 {
-  "name": "prisma-client-92b1d490d0de81dd7dcb7e4a26fa656c6be0d97d575f60fa58b1b50aca4a8605",
-  "main": "index.js",
-  "types": "index.d.ts",
-  "browser": "index-browser.js",
-  "exports": {
-    "./package.json": "./package.json",
-    ".": {
-      "require": {
-        "node": "./index.js",
-        "edge-light": "./wasm.js",
-        "workerd": "./wasm.js",
-        "worker": "./wasm.js",
-        "browser": "./index-browser.js",
-        "default": "./index.js"
-      },
-      "import": {
-        "node": "./index.js",
-        "edge-light": "./wasm.js",
-        "workerd": "./wasm.js",
-        "worker": "./wasm.js",
-        "browser": "./index-browser.js",
-        "default": "./index.js"
-      },
-      "default": "./index.js"
-    },
-    "./edge": {
-      "types": "./edge.d.ts",
-      "require": "./edge.js",
-      "import": "./edge.js",
-      "default": "./edge.js"
-    },
-    "./react-native": {
-      "types": "./react-native.d.ts",
-      "require": "./react-native.js",
-      "import": "./react-native.js",
-      "default": "./react-native.js"
-    },
-    "./extension": {
-      "types": "./extension.d.ts",
-      "require": "./extension.js",
-      "import": "./extension.js",
-      "default": "./extension.js"
-    },
-    "./index-browser": {
-      "types": "./index.d.ts",
-      "require": "./index-browser.js",
-      "import": "./index-browser.js",
-      "default": "./index-browser.js"
-    },
-    "./index": {
-      "types": "./index.d.ts",
-      "require": "./index.js",
-      "import": "./index.js",
-      "default": "./index.js"
-    },
-    "./wasm": {
-      "types": "./wasm.d.ts",
-      "require": "./wasm.js",
-      "import": "./wasm.js",
-      "default": "./wasm.js"
-    },
-    "./runtime/library": {
-      "types": "./runtime/library.d.ts",
-      "require": "./runtime/library.js",
-      "import": "./runtime/library.js",
-      "default": "./runtime/library.js"
-    },
-    "./runtime/binary": {
-      "types": "./runtime/binary.d.ts",
-      "require": "./runtime/binary.js",
-      "import": "./runtime/binary.js",
-      "default": "./runtime/binary.js"
-    },
-    "./generator-build": {
-      "require": "./generator-build/index.js",
-      "import": "./generator-build/index.js",
-      "default": "./generator-build/index.js"
-    },
-    "./sql": {
-      "require": {
-        "types": "./sql.d.ts",
-        "node": "./sql.js",
-        "default": "./sql.js"
-      },
-      "import": {
-        "types": "./sql.d.ts",
-        "node": "./sql.mjs",
-        "default": "./sql.mjs"
-      },
-      "default": "./sql.js"
-    },
-    "./*": "./*"
+  "name": "@cspotcode/source-map-support",
+  "description": "Fixes stack traces for files with source maps",
+  "version": "0.8.1",
+  "main": "./source-map-support.js",
+  "types": "./source-map-support.d.ts",
+  "scripts": {
+    "build": "node build.js",
+    "serve-tests": "http-server -p 1336",
+    "test": "mocha"
   },
-  "version": "5.22.0",
-  "sideEffects": false
+  "files": [
+    "/register.d.ts",
+    "/register.js",
+    "/register-hook-require.d.ts",
+    "/register-hook-require.js",
+    "/source-map-support.d.ts",
+    "/source-map-support.js",
+    "/browser-source-map-support.js"
+  ],
+  "dependencies": {
+    "@jridgewell/trace-mapping": "0.3.9"
+  },
+  "devDependencies": {
+    "@types/lodash": "^4.14.182",
+    "browserify": "^4.2.3",
+    "coffeescript": "^1.12.7",
+    "http-server": "^0.11.1",
+    "lodash": "^4.17.21",
+    "mocha": "^3.5.3",
+    "semver": "^7.3.7",
+    "source-map": "0.6.1",
+    "webpack": "^1.15.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cspotcode/node-source-map-support"
+  },
+  "bugs": {
+    "url": "https://github.com/cspotcode/node-source-map-support/issues"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=12"
+  },
+  "volta": {
+    "node": "16.11.0",
+    "npm": "7.24.2"
+  }
 }
