@@ -1,1 +1,1 @@
-console.log("download-counter/index.js");
+module.exports = require('./register')().Promise

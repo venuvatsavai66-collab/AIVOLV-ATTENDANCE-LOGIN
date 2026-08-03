@@ -1,7 +1,17 @@
-// tslint:disable:no-useless-files
+import Promise = require('./index');
 
-// For following usage:
-//    import '@cspotcode/source-map-support/register'
-// Instead of:
-//    import sourceMapSupport from '@cspotcode/source-map-support'
-//    sourceMapSupport.install()
+declare function register (module?: string, options?: register.Options): register.Register;
+
+declare namespace register {
+  export interface Register {
+    Promise: typeof Promise;
+    implementation: string;
+  }
+
+  export interface Options {
+      Promise?: typeof Promise;
+      global?: boolean
+  }
+}
+
+export = register;
