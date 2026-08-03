@@ -1,343 +1,120 @@
-// File: C:\Users\LENOVO\OneDrive\Documents\aivolv website\app\api\tasks\route.ts
-import * as entry from '../../../../../app/api/tasks/route.js'
-import type { NextRequest } from 'next/server.js'
+import { NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+import { getCurrentUser } from "@/lib/auth";
 
-type TEntry = typeof import('../../../../../app/api/tasks/route.js')
+export const dynamic = "force-dynamic";
 
-// Check that the entry is a valid entry
-checkFields<Diff<{
-  GET?: Function
-  HEAD?: Function
-  OPTIONS?: Function
-  POST?: Function
-  PUT?: Function
-  DELETE?: Function
-  PATCH?: Function
-  config?: {}
-  generateStaticParams?: Function
-  revalidate?: RevalidateRange<TEntry> | false
-  dynamic?: 'auto' | 'force-dynamic' | 'error' | 'force-static'
-  dynamicParams?: boolean
-  fetchCache?: 'auto' | 'force-no-store' | 'only-no-store' | 'default-no-store' | 'default-cache' | 'only-cache' | 'force-cache'
-  preferredRegion?: 'auto' | 'global' | 'home' | string | string[]
-  runtime?: 'nodejs' | 'experimental-edge' | 'edge'
-  maxDuration?: number
-  
-}, TEntry, ''>>()
+export async function GET(req: Request) {
+  try {
+    const currentUser = await getCurrentUser();
+    if (!currentUser) {
+      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+    }
 
-// Check the prop type of the entry function
-if ('GET' in entry) {
-  checkFields<
-    Diff<
-      ParamCheck<Request | NextRequest>,
-      {
-        __tag__: 'GET'
-        __param_position__: 'first'
-        __param_type__: FirstArg<MaybeField<TEntry, 'GET'>>
+    const { searchParams } = new URL(req.url);
+    const statusParam = searchParams.get("status");
+    const priorityParam = searchParams.get("priority");
+
+    const roleCode = currentUser.role?.code;
+    const employee = currentUser.employee;
+
+    const where: any = { deletedAt: null };
+
+    if (statusParam && statusParam !== "ALL") where.status = statusParam;
+    if (priorityParam && priorityParam !== "ALL") where.priority = priorityParam;
+
+    // Role-based Task Scoping
+    if (roleCode === "EMPLOYEE" && employee) {
+      where.assigneeId = employee.id;
+    } else if (roleCode === "MANAGER" && employee && employee.departmentId) {
+      where.OR = [
+        { departmentId: employee.departmentId },
+        { creatorId: currentUser.id },
+        { assigneeId: employee.id },
+      ];
+    }
+
+    const tasks = await prisma.task.findMany({
+      where,
+      include: {
+        assignee: { include: { department: true, designation: true } },
+        creator: true,
+        department: true,
+        comments: {
+          include: { user: { include: { employee: true } } },
+          orderBy: { createdAt: "asc" },
+        },
+        files: true,
+        workLogs: {
+          include: { employee: true },
+          orderBy: { logDate: "desc" },
+        },
       },
-      'GET'
-    >
-  >()
-  checkFields<
-    Diff<
-      ParamCheck<PageParams>,
-      {
-        __tag__: 'GET'
-        __param_position__: 'second'
-        __param_type__: SecondArg<MaybeField<TEntry, 'GET'>>
-      },
-      'GET'
-    >
-  >()
-  
-  checkFields<
-    Diff<
-      {
-        __tag__: 'GET',
-        __return_type__: Response | void | never | Promise<Response | void | never>
-      },
-      {
-        __tag__: 'GET',
-        __return_type__: ReturnType<MaybeField<TEntry, 'GET'>>
-      },
-      'GET'
-    >
-  >()
-}
-// Check the prop type of the entry function
-if ('HEAD' in entry) {
-  checkFields<
-    Diff<
-      ParamCheck<Request | NextRequest>,
-      {
-        __tag__: 'HEAD'
-        __param_position__: 'first'
-        __param_type__: FirstArg<MaybeField<TEntry, 'HEAD'>>
-      },
-      'HEAD'
-    >
-  >()
-  checkFields<
-    Diff<
-      ParamCheck<PageParams>,
-      {
-        __tag__: 'HEAD'
-        __param_position__: 'second'
-        __param_type__: SecondArg<MaybeField<TEntry, 'HEAD'>>
-      },
-      'HEAD'
-    >
-  >()
-  
-  checkFields<
-    Diff<
-      {
-        __tag__: 'HEAD',
-        __return_type__: Response | void | never | Promise<Response | void | never>
-      },
-      {
-        __tag__: 'HEAD',
-        __return_type__: ReturnType<MaybeField<TEntry, 'HEAD'>>
-      },
-      'HEAD'
-    >
-  >()
-}
-// Check the prop type of the entry function
-if ('OPTIONS' in entry) {
-  checkFields<
-    Diff<
-      ParamCheck<Request | NextRequest>,
-      {
-        __tag__: 'OPTIONS'
-        __param_position__: 'first'
-        __param_type__: FirstArg<MaybeField<TEntry, 'OPTIONS'>>
-      },
-      'OPTIONS'
-    >
-  >()
-  checkFields<
-    Diff<
-      ParamCheck<PageParams>,
-      {
-        __tag__: 'OPTIONS'
-        __param_position__: 'second'
-        __param_type__: SecondArg<MaybeField<TEntry, 'OPTIONS'>>
-      },
-      'OPTIONS'
-    >
-  >()
-  
-  checkFields<
-    Diff<
-      {
-        __tag__: 'OPTIONS',
-        __return_type__: Response | void | never | Promise<Response | void | never>
-      },
-      {
-        __tag__: 'OPTIONS',
-        __return_type__: ReturnType<MaybeField<TEntry, 'OPTIONS'>>
-      },
-      'OPTIONS'
-    >
-  >()
-}
-// Check the prop type of the entry function
-if ('POST' in entry) {
-  checkFields<
-    Diff<
-      ParamCheck<Request | NextRequest>,
-      {
-        __tag__: 'POST'
-        __param_position__: 'first'
-        __param_type__: FirstArg<MaybeField<TEntry, 'POST'>>
-      },
-      'POST'
-    >
-  >()
-  checkFields<
-    Diff<
-      ParamCheck<PageParams>,
-      {
-        __tag__: 'POST'
-        __param_position__: 'second'
-        __param_type__: SecondArg<MaybeField<TEntry, 'POST'>>
-      },
-      'POST'
-    >
-  >()
-  
-  checkFields<
-    Diff<
-      {
-        __tag__: 'POST',
-        __return_type__: Response | void | never | Promise<Response | void | never>
-      },
-      {
-        __tag__: 'POST',
-        __return_type__: ReturnType<MaybeField<TEntry, 'POST'>>
-      },
-      'POST'
-    >
-  >()
-}
-// Check the prop type of the entry function
-if ('PUT' in entry) {
-  checkFields<
-    Diff<
-      ParamCheck<Request | NextRequest>,
-      {
-        __tag__: 'PUT'
-        __param_position__: 'first'
-        __param_type__: FirstArg<MaybeField<TEntry, 'PUT'>>
-      },
-      'PUT'
-    >
-  >()
-  checkFields<
-    Diff<
-      ParamCheck<PageParams>,
-      {
-        __tag__: 'PUT'
-        __param_position__: 'second'
-        __param_type__: SecondArg<MaybeField<TEntry, 'PUT'>>
-      },
-      'PUT'
-    >
-  >()
-  
-  checkFields<
-    Diff<
-      {
-        __tag__: 'PUT',
-        __return_type__: Response | void | never | Promise<Response | void | never>
-      },
-      {
-        __tag__: 'PUT',
-        __return_type__: ReturnType<MaybeField<TEntry, 'PUT'>>
-      },
-      'PUT'
-    >
-  >()
-}
-// Check the prop type of the entry function
-if ('DELETE' in entry) {
-  checkFields<
-    Diff<
-      ParamCheck<Request | NextRequest>,
-      {
-        __tag__: 'DELETE'
-        __param_position__: 'first'
-        __param_type__: FirstArg<MaybeField<TEntry, 'DELETE'>>
-      },
-      'DELETE'
-    >
-  >()
-  checkFields<
-    Diff<
-      ParamCheck<PageParams>,
-      {
-        __tag__: 'DELETE'
-        __param_position__: 'second'
-        __param_type__: SecondArg<MaybeField<TEntry, 'DELETE'>>
-      },
-      'DELETE'
-    >
-  >()
-  
-  checkFields<
-    Diff<
-      {
-        __tag__: 'DELETE',
-        __return_type__: Response | void | never | Promise<Response | void | never>
-      },
-      {
-        __tag__: 'DELETE',
-        __return_type__: ReturnType<MaybeField<TEntry, 'DELETE'>>
-      },
-      'DELETE'
-    >
-  >()
-}
-// Check the prop type of the entry function
-if ('PATCH' in entry) {
-  checkFields<
-    Diff<
-      ParamCheck<Request | NextRequest>,
-      {
-        __tag__: 'PATCH'
-        __param_position__: 'first'
-        __param_type__: FirstArg<MaybeField<TEntry, 'PATCH'>>
-      },
-      'PATCH'
-    >
-  >()
-  checkFields<
-    Diff<
-      ParamCheck<PageParams>,
-      {
-        __tag__: 'PATCH'
-        __param_position__: 'second'
-        __param_type__: SecondArg<MaybeField<TEntry, 'PATCH'>>
-      },
-      'PATCH'
-    >
-  >()
-  
-  checkFields<
-    Diff<
-      {
-        __tag__: 'PATCH',
-        __return_type__: Response | void | never | Promise<Response | void | never>
-      },
-      {
-        __tag__: 'PATCH',
-        __return_type__: ReturnType<MaybeField<TEntry, 'PATCH'>>
-      },
-      'PATCH'
-    >
-  >()
+      orderBy: { createdAt: "desc" },
+    });
+
+    const now = new Date();
+    const processedTasks = tasks.map((t) => ({
+      ...t,
+      isOverdue: Boolean(t.dueDate && new Date(t.dueDate) < now && t.status !== "COMPLETED"),
+    }));
+
+    return NextResponse.json({ success: true, data: processedTasks });
+  } catch (error: any) {
+    console.error("GET /api/tasks error:", error);
+    return NextResponse.json(
+      { success: false, error: error.message || "Failed to fetch tasks" },
+      { status: 500 }
+    );
+  }
 }
 
-// Check the arguments and return type of the generateStaticParams function
-if ('generateStaticParams' in entry) {
-  checkFields<Diff<{ params: PageParams }, FirstArg<MaybeField<TEntry, 'generateStaticParams'>>, 'generateStaticParams'>>()
-  checkFields<Diff<{ __tag__: 'generateStaticParams', __return_type__: any[] | Promise<any[]> }, { __tag__: 'generateStaticParams', __return_type__: ReturnType<MaybeField<TEntry, 'generateStaticParams'>> }>>()
+export async function POST(req: Request) {
+  try {
+    const currentUser = await getCurrentUser();
+    if (!currentUser) {
+      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+    }
+
+    const body = await req.json();
+    const { title, description, assigneeId, departmentId, dueDate, priority } = body;
+
+    if (!title || typeof title !== "string" || title.trim().length === 0) {
+      return NextResponse.json({ success: false, error: "Task title is required" }, { status: 400 });
+    }
+
+    const task = await prisma.task.create({
+      data: {
+        title: title.trim(),
+        description: description ? description.trim() : null,
+        assigneeId: assigneeId || null,
+        creatorId: currentUser.id,
+        departmentId: departmentId || null,
+        dueDate: dueDate ? new Date(dueDate) : null,
+        priority: priority || "MEDIUM",
+        status: "TO_DO",
+      },
+      include: {
+        assignee: true,
+        department: true,
+      },
+    });
+
+    await prisma.auditLog.create({
+      data: {
+        userId: currentUser.id,
+        action: "TASK_CREATE",
+        module: "TASKS",
+        details: `Created task "${task.title}" (Priority: ${task.priority}).`,
+      },
+    });
+
+    return NextResponse.json({ success: true, data: task }, { status: 201 });
+  } catch (error: any) {
+    console.error("POST /api/tasks error:", error);
+    return NextResponse.json(
+      { success: false, error: error.message || "Failed to create task" },
+      { status: 500 }
+    );
+  }
 }
-
-type PageParams = any
-export interface PageProps {
-  params?: any
-  searchParams?: any
-}
-export interface LayoutProps {
-  children?: React.ReactNode
-
-  params?: any
-}
-
-// =============
-// Utility types
-type RevalidateRange<T> = T extends { revalidate: any } ? NonNegative<T['revalidate']> : never
-
-// If T is unknown or any, it will be an empty {} type. Otherwise, it will be the same as Omit<T, keyof Base>.
-type OmitWithTag<T, K extends keyof any, _M> = Omit<T, K>
-type Diff<Base, T extends Base, Message extends string = ''> = 0 extends (1 & T) ? {} : OmitWithTag<T, keyof Base, Message>
-
-type FirstArg<T extends Function> = T extends (...args: [infer T, any]) => any ? unknown extends T ? any : T : never
-type SecondArg<T extends Function> = T extends (...args: [any, infer T]) => any ? unknown extends T ? any : T : never
-type MaybeField<T, K extends string> = T extends { [k in K]: infer G } ? G extends Function ? G : never : never
-
-type ParamCheck<T> = {
-  __tag__: string
-  __param_position__: string
-  __param_type__: T
-}
-
-function checkFields<_ extends { [k in keyof any]: never }>() {}
-
-// https://github.com/sindresorhus/type-fest
-type Numeric = number | bigint
-type Zero = 0 | 0n
-type Negative<T extends Numeric> = T extends Zero ? never : `${T}` extends `-${string}` ? T : never
-type NonNegative<T extends Numeric> = T extends Zero ? T : Negative<T> extends never ? T : '__invalid_negative_number__'
