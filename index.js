@@ -1,4 +1,5 @@
-module.exports = {
-  // https://github.com/prisma/prisma/pull/12907
-  ...require('.prisma/client/default'),
-}
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.enginesVersion = void 0;
+exports.enginesVersion = require('./package.json').prisma.enginesVersion;
+//# sourceMappingURL=index.js.map

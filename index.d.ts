@@ -1,1 +1,1 @@
-export * from '.prisma/client/default'
+export declare const enginesVersion: string;
