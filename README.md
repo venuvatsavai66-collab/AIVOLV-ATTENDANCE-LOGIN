@@ -1,16 +1,7 @@
-# @prisma/get-platform
+# @swc/couter
 
-Platform detection.
+Download counter for swc packages.
 
-⚠️ **Warning**: This package is intended for Prisma's internal use.
-Its release cycle does not follow SemVer, which means we might release breaking changes (change APIs, remove functionality) without any prior warning.
+This package does not contain any code. It is used solely to track number of downloads of npm packages like `@swc/core` and `@next/swc`. If you are building a huge project using SWC, please consider depending on this package. It will not add any code to your bundle, but it will help us determine the number of users of SWC.
 
-If you are using this package, it would be helpful if you could help us gain an understanding where, how and why you are using it. Your feedback will be valuable to us to define a better API. Please share this information at https://github.com/prisma/prisma/discussions/13877 - Thanks!
-
-## Usage
-
-```ts
-import { getBinaryTargetForCurrentPlatform } from '@prisma/get-platform'
-
-const binaryTarget = await getBinaryTargetForCurrentPlatform()
-```
+Counting is done by npm, just like other packages.
